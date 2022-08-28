@@ -1,8 +1,8 @@
 import $$observable from './utils/symbol-observable'
 
-import { Store, PreloadedState, StoreEnhancer, Dispatch, Observer, ExtendState } from './types/store'
 import { Action } from './types/actions'
 import { Reducer } from './types/reducers'
+import { Dispatch, ExtendState, Observer, PreloadedState, Store, StoreEnhancer } from './types/store'
 import ActionTypes from './utils/actionTypes'
 import isPlainObject from './utils/isPlainObject'
 import { kindOf } from './utils/kindOf'
@@ -43,9 +43,16 @@ export default function createStore<S, A extends Action, Ext = {}, StateExt = ne
 ): Store<ExtendState<S, StateExt>, A, StateExt, Ext> & Ext
 export default function createStore<S, A extends Action, Ext = {}, StateExt = never>(
   reducer: Reducer<S, A>,
-  preloadedState?: PreloadedState<S> | StoreEnhancer<Ext, StateExt>,
+  preloadedState?: PreloadedState<S> | StoreEnhancer<Ext, StateExt> /*  */,
   enhancer?: StoreEnhancer<Ext, StateExt>
 ): Store<ExtendState<S, StateExt>, A, StateExt, Ext> & Ext {
+  /* 第一个函数重载签名入参为reducer和enhancer（redux增强剂）
+     第二个函数重载签名入参为reducer和preloadedState（初始化state）和enhancer
+     第三个函数实现签名兼容前两个重载签名的入参上，主要是体验在第二个参数上，第二个参数可为state也可为enhancer，
+     第二第三个参数可以不传，state在此不传的话由第一个参数reducer函数的第一个参数赋予，
+     这一个赋予动作会在createStore函数初始化时首次调用dispatch函数体现，末尾参数都是enhancer 
+  */
+
   if (
     (typeof preloadedState === 'function' && typeof enhancer === 'function') ||
     (typeof enhancer === 'function' && typeof arguments[3] === 'function')

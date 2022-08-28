@@ -9,7 +9,7 @@ function reducer(currentState = state, actions: any) {
       return { ...currentState, count: actions.payload }
 
     default:
-      return currentState
+      return state
   }
 }
 
