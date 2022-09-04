@@ -53,6 +53,14 @@ export default function createStore<S, A extends Action, Ext = {}, StateExt = ne
      这一个赋予动作会在createStore函数初始化时首次调用dispatch函数体现，末尾参数都是enhancer 
   */
 
+  /*   
+  总结: 
+  第一个参数reducer为函数且必传，
+  第二个参数为非必传参数，可为state或者enhancer，如果是state则不允许为函数类型，如果是函数则当做enhancer处理，
+  第三个参数为非必传参数且必须为函数，会当做enhancer处理
+  */
+
+  // TODO 如果(preloadedState传入的是一个函数且enhancer也是函数)或者(enhancer是函数且第三个入参也是函数)抛出错误
   if (
     (typeof preloadedState === 'function' && typeof enhancer === 'function') ||
     (typeof enhancer === 'function' && typeof arguments[3] === 'function')
@@ -64,19 +72,24 @@ export default function createStore<S, A extends Action, Ext = {}, StateExt = ne
     )
   }
 
+  // TODO 如果(preloadedState传入的是一个函数且enhancer没有传)
   if (typeof preloadedState === 'function' && typeof enhancer === 'undefined') {
+    // TODO 将preloadedState赋值给enhancer 这里走了第一个函数重载
     enhancer = preloadedState as StoreEnhancer<Ext, StateExt>
     preloadedState = undefined
   }
 
+  // TODO 如果enhancer传了
   if (typeof enhancer !== 'undefined') {
+    // TODO 如果enhancer传了且不是函数抛出错误
     if (typeof enhancer !== 'function') {
       throw new Error(`Expected the enhancer to be a function. Instead, received: '${kindOf(enhancer)}'`)
     }
-
+    // TODO 如果enhancer传了且是函数将createStore操作交给enhancer去处理
     return enhancer(createStore)(reducer, preloadedState as PreloadedState<S>) as Store<ExtendState<S, StateExt>, A, StateExt, Ext> & Ext
   }
 
+  // TODO 如果reducer不是函数抛出错误
   if (typeof reducer !== 'function') {
     throw new Error(`Expected the root reducer to be a function. Instead, received: '${kindOf(reducer)}'`)
   }
